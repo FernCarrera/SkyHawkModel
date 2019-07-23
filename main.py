@@ -40,8 +40,10 @@ class Mission():
     phi = 0
     psi = 0
     r_def = 0
+    rudder_in = 0
     # note: need to calc density based on alt
-    def __init__(self, altitude, velocity, density):
+    def __init__(self,name, altitude, velocity, density):
+        self.name = name
         self.altitude = altitude
         self.velocity = velocity
         self.density = density
@@ -56,6 +58,14 @@ class Mission():
         cls.phi = phi
         cls.psi = psi
         cls.r_def = r_def
+    
+    @staticmethod
+    def apply_sensor_data(rudder_data):
+        Data = rudder_data.parse("Sheet1")
+        time = Data.time_s     
+        rudder_deg = Data.rudder_deg 
+        yaw_rate = Data.yaw_rate_deg_s
+        return time,rudder_deg,yaw_rate
     
     # Run Simulation
     # can run different planes
@@ -82,15 +92,18 @@ class Mission():
 hawk1 = pd.ExcelFile("Data/Skyhawk_Attributes.xlsx")
 hawk2 = pd.ExcelFile("Data/Skyhawk_Attributes2.xlsx")
 
+rudder_in = pd.ExcelFile("Data/rudder_input.xlsx")
 
 # plotting class?
 james = Skyhawk('James',hawk1)
 charles = Skyhawk('Charles',hawk2)
 
+test = Mission("One",10000,1000,1.225)
+print(test.apply_sensor_data(rudder_in))
 #print(hawk1.name_num())
-print(james.name_num())
-print(charles.name_num())
+#print(james.name_num())
+#print(charles.name_num())
 
-print(james.momentCoeff())
-print(charles.momentCoeff())
+#print(james.momentCoeff())
+#print(charles.momentCoeff())
     
