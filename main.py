@@ -38,8 +38,8 @@ class Vehicle:
         return c
 
     def aero_coefficients(self):
-        coeff = [float(self.Data.cyb),float(self.Data.cdr),float(self.Data.clb),float(self.Data.clp),float(self.Data.clr),\
-                 float(self.Data.cdr),float(self.Data.cnb),float(self.Data.cnp),float(self.Data.cnr),float(self.Data.cdr)]
+        coeff = [float(self.Data.cyb),float(self.Data.cydr),float(self.Data.clb),float(self.Data.clp),float(self.Data.clr),\
+                 float(self.Data.cldr),float(self.Data.cnb),float(self.Data.cnp),float(self.Data.cnr),float(self.Data.cndr)]
         return coeff 
 
 
@@ -57,12 +57,9 @@ class Mission():
     altitude = 0
     density = 0
     # note: need to calc density based on alt
-    def __init__(self,name, altitude, velocity, density):
+    def __init__(self,name):
         self.name = name
-        #self.altitude = altitude
-        #self.velocity = velocity
-        #self.density = density
-        #self.time = time
+      
     
     # Sets custom initial conditions
     @classmethod
@@ -83,9 +80,6 @@ class Mission():
         time = Data.time_s.tolist()     
         rudder_deg = Data.rudder_deg.tolist() 
         yaw_rate = Data.yaw_rate_deg_s.tolist()
-        #time = [round(x) for x in time]
-        #rudder_deg = [round(x) for x in rudder_deg]
-        #yaw_rate = [round(x) for x in yaw_rate] 
         cls.time = time
         cls.rudder_deg = rudder_deg
         cls.yaw_rate = yaw_rate
@@ -102,8 +96,7 @@ class Mission():
         cls.r = state[2]
         cls.phi = state[3]
         cls.psi = state[4]
-        #cls.r_def = state[5]
-        #cls.velocity = state[6]
+       
 
 
     # Provides orientation data
@@ -115,41 +108,29 @@ class Mission():
     # Run Simulation
     # can run different planes
     @classmethod
-    def simulate(cls,james,rudder_in):
+    def simulate(cls,vehicle,rudder_in):
         cls.apply_sensor_data(rudder_in)
-        state = cls.state()
+        #state = cls.state()
         v = cls.return_velocity(cls)
-      
         yaw = []
-        yaw.append(0)
         i = 0
         for x in cls.time:
            
-            
-            r_def = cls.rudder_deg[i]
-            aero = Calc.aeroC(james,cls,r_def,v)
-            #print("aero",aero)
-            forces = Calc.forceCalc(james,qbar,aero)
-            rates = Calc.EOM(forces,james,v,cls)
-            new_state = Calc.RK4(state,rates)
+            #print("state",cls.state())
+            r_def = cls.rudder_deg[i]*(np.pi/180)
+
+            aero = Calc.aeroC(vehicle,cls,r_def,v)
+            forces = Calc.forceCalc(vehicle,qbar,aero)
+            rates = Calc.EOM(forces,vehicle,v,cls)
+            new_state = Calc.RK4(cls.state(),rates)
+
             
             cls.update_state(new_state)
 
+            
             yaw.append(new_state[2]*(180/np.pi))
             i += 1
 
-        # declare arrays/variables needed for math
-        # call for custom rudder input based off duration input
-        
-        # calc aero coefficients
-        # calc forces and moments
-        # calculate equations of motion
-
-        # control system method?
-
-        # runge kutta method
-
-        # append data
         return yaw
 
 
@@ -163,7 +144,7 @@ class Calc():
     @staticmethod
     def RK4(x, rates):
         rn = []
-        dt = 0.01
+        dt = 0.05 # need user to set interval 
         for i in range(len(x)):
             rn.append(x[i])
         r1 = rates
@@ -182,17 +163,16 @@ class Calc():
 
     # Cy,Cl,Cn calculator
     @staticmethod
-    def aeroC(vehicle,test,r_def,v):
+    def aeroC(vehicle,mission,r_def,v):
         area,b = vehicle.vehicle_geometry() # area, and span
         c = vehicle.aero_coefficients()
-        #print("C",c)
-        state = test.state()
+        
+        state = mission.state()
         
         beta = state[0]
         p = state[1]
         r = state[2]
-        #r_def = state[5]
-        #v = state[6]
+        
         
         Cy = c[0]*beta + c[1]*r_def
         Cl = c[2]*beta + c[3]*(p*b/(2*v)) + c[4]*(r*b/(2*v)) + c[5]*r_def
@@ -213,6 +193,7 @@ class Calc():
         N = qbar*S*b*aero[2]
 
         forces = [fy,L,N]
+      
         return forces
     
     # Equations of motion calculation
@@ -220,20 +201,24 @@ class Calc():
     def EOM(forces,vehicle,v,mission):
         f = forces
         g = 9.81
+
         x = mission.state()
         c = vehicle.momentCoeff()
         m = vehicle.vehicle_mass()
+       
 
         # x = [beta,p,r,phi,psi]
-
+        # c = [c0,c3,c4,c10]
         betaDot = (1/v)*(f[0]/m + g*np.sin(x[3]))-x[2]
         pAcc = c[1]*f[1] + c[2]*f[2]
         rAcc = c[2]*f[1] + c[3]*f[2]
         phiDot = x[1]
         psiDot = x[2]*np.cos(x[3])
 
-        rates = [betaDot,pAcc,rAcc,phiDot,psiDot]
+        
 
+        rates = [betaDot,pAcc,rAcc,phiDot,psiDot]
+       
         return rates
 
         
@@ -244,14 +229,18 @@ hawk1 = pd.ExcelFile("Data/Skyhawk_Attributes.xlsx")
 hawk2 = pd.ExcelFile("Data/Skyhawk_Attributes2.xlsx")
 
 rudder_in = pd.ExcelFile("Data/rudder_input.xlsx")
+yuh = rudder_in.parse("Sheet1")
+rudder_deg = yuh.rudder_deg.tolist()
+time = yuh.time_s.tolist()
 
+yaw_real = yuh.yaw_rate_deg_s.tolist()
 
 qbar = 13898.5
 # plotting class?
 james = Vehicle('James',hawk1)
 charles = Vehicle('Charles',hawk2)
 
-test = Mission("One",4500,190,0.77)
+test = Mission("One")
 test.apply_sensor_data(rudder_in)
 test.set_init_cond(190,4500,0.77)
 #print("coef",james.aero_coefficients())
@@ -259,7 +248,10 @@ yaw = test.simulate(james,rudder_in)
 
 #print("yaw",yaw)
 fig = plt.subplot()
-fig.plot(yaw,label='No Control System [deg/s]')
+fig.plot(time,rudder_deg,label='rudder in')
+fig.plot(time,yaw,label='yaw')
+fig.plot(time,yaw_real,label='yaw_real')
+fig.legend()
 plt.show()
 
 
