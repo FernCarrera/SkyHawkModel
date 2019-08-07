@@ -1,0 +1,59 @@
+CL0 Lift coefficient at zero
+
+angle of attack (AOA)
+
+CLa Lift coefficient due to AOA
+
+CD0 Zero-lift drag coefficient
+
+CDL Drag coefficient due to lift
+
+(induced drag effect)
+
+Cmq Pitching moment due to pitch rate
+
+(pitch damping)
+
+Cmad Pitching moment due to AOA rate
+
+(aero interaction between wings and horiz tail)
+
+Cyb Side force due to sideslip
+
+Cyp Side force due to roll rate
+
+Cyr Side force due to yaw rate
+
+Clb Roll moment due to sideslip
+
+Clp Roll moment due to roll rate
+
+(roll damping)
+
+Clr Roll moment due to yaw rate
+
+Cnb Yaw moment due to sideslip
+
+Cnp Yaw moment due to roll rate
+
+Cnr Yaw moment due to yaw rate
+
+(yaw damping)
+
+CLiftdc Lift due to control surface deflection
+
+CDdc Drag due to control surface deflection
+
+Cydc Side force due to control surface deflection
+
+Cldc Roll moment due to control surface deflection
+
+Cmdc Pitch moment due to control surface deflection
+
+Cndc Yaw moment due to control surface deflection
+
+DeltaStallAlpha Increase in max angle-of-attack before stall
+
+Xac X-location of aerodynamic center
+
+Ymac=Mean Area Chord at "Y" axis
