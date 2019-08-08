@@ -18,13 +18,17 @@ class Mission():
     density = 0
     qbar = 0
     name = ' '
+    control = False # Better way?
     # note: need to calc density based on alt
     def __init__(self,name):
         self.name = name
     
-    @staticmethod
+    
     def get_name(self):
         return self.name
+    @classmethod 
+    def control_system(cls,value):
+        cls.control = value
 
     # Sets custom initial conditions
     @classmethod
@@ -82,11 +86,18 @@ class Mission():
         yaw = []
         i = 0
         time = cls.time
-
+        kr = -0.4
         for x in cls.time:
            
-            #print("state",cls.state())
-            r_def = cls.rudder_deg[i]*(np.pi/180)
+            # Control system check
+            if (cls.control == True):
+                state = cls.state()
+                z = np.exp(-1)*state[2]
+                #zdot = cls.r - z # change in time constant??
+                r_def = cls.rudder_deg[i]*(np.pi/180)
+                r_def = r_def + kr*(z-state[2])
+            else:
+                r_def = cls.rudder_deg[i]*(np.pi/180)
 
             aero = Calc.aeroC(vehicle,cls,r_def,v)
             forces = Calc.forceCalc(vehicle,cls.qbar,aero)
@@ -103,9 +114,9 @@ class Mission():
         fig = plt.subplot()
         fig.plot(time,cls.rudder_deg,label='rudder in')
         fig.plot(time,yaw,label= '{}'.format(Vehicle.get_name(vehicle)) )
-        #fig.plot(time,yaw2,label='bond')
+        fig.plot(time,cls.yaw_rate,label='Flight Data')
         plt.ylabel('yaw rate [deg/s]')
-        plt.title('{} Simulation'.format(Vehicle.get_name(vehicle))) # Add simulation name
+        plt.title('{},Control:{}'.format(Vehicle.get_name(vehicle),cls.control)) # Add simulation name
         plt.xlabel('time [s]')
         fig.legend()
         plt.show()

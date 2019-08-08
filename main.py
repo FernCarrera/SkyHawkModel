@@ -20,10 +20,19 @@ bond = Vehicle('bond',hawk2)
 test = Mission("One")
 test.apply_sensor_data(rudder_in)
 test.set_init_cond(190,4500,0.77)
+test.control_system(True)
 
 # Run Simulations
 yaw = test.simulate(james,rudder_in)
-yaw2 = test.simulate(bond,rudder_in)
+
+
+test2 = Mission("Two")
+test2.apply_sensor_data(rudder_in)
+test2.set_init_cond(190,4500,0.77)
+test2.control_system(False)
+
+two = test2.simulate(james,rudder_in)
+
 
 
 
