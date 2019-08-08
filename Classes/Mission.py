@@ -84,10 +84,17 @@ class Mission():
         #state = cls.state()
         v = cls.return_velocity(cls)
         yaw = []
+        #testing
+        aero = []
+        forces = []
+        rates = []
+        #testing
         i = 0
         time = cls.time
         kr = -0.4
-        for x in cls.time:
+        dt = cls.time[1]-cls.time[0]
+        
+        for x in range(len(cls.time)):
            
             # Control system check
             if (cls.control == True):
@@ -98,19 +105,18 @@ class Mission():
                 r_def = r_def + kr*(z-state[2])
             else:
                 r_def = cls.rudder_deg[i]*(np.pi/180)
-
+            
             aero = Calc.aeroC(vehicle,cls,r_def,v)
             forces = Calc.forceCalc(vehicle,cls.qbar,aero)
             rates = Calc.EOM(forces,vehicle,v,cls)
-            new_state = Calc.RK4(cls.state(),rates)
 
-            
+            new_state = Calc.RK4(cls.state(),rates,dt)
             cls.update_state(new_state)
-
+            
             
             yaw.append(new_state[2]*(180/np.pi))
             i += 1
-
+      
         fig = plt.subplot()
         fig.plot(time,cls.rudder_deg,label='rudder in')
         fig.plot(time,yaw,label= '{}'.format(Vehicle.get_name(vehicle)) )

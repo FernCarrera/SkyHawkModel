@@ -1,12 +1,10 @@
 import numpy as np
 class Calc():
-
-    # 4th Order Runge-Kutta
-    # x: value, rates: rate-of-change
     @staticmethod
-    def RK4(x, rates):
+    def RK4(x, rates,dt):
         rn = []
-        dt = 0.05 # need user to set interval 
+                
+        #dt = dt # need user to set interval 
         for i in range(len(x)):
             rn.append(x[i])
         r1 = rates
@@ -83,3 +81,4 @@ class Calc():
         rates = [betaDot,pAcc,rAcc,phiDot,psiDot]
        
         return rates
+    
