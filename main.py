@@ -4,15 +4,12 @@ import pandas as pd
 from pandas import ExcelWriter
 from pandas import ExcelFile
 
-# Import Data
+# Import vehicle Data
 hawk1 = pd.ExcelFile("Data/Skyhawk_Attributes.xlsx")
 hawk2 = pd.ExcelFile("Data/Skyhawk_Attributes2.xlsx")
 
+# Enter Rudder Data
 rudder_in = pd.ExcelFile("Data/rudder_test.xlsx")
-yuh = rudder_in.parse("Sheet1")
-rudder_deg = yuh.rudder_deg.tolist()
-time = yuh.time_s.tolist()
-yaw_real = yuh.yaw_rate_deg_s.tolist()
 
 # Create Vehicles
 james = Vehicle('James',hawk1)
@@ -21,13 +18,16 @@ james = Vehicle('James',hawk1)
 test = Mission("One")
 test.apply_sensor_data(rudder_in)
 test.set_init_cond(190,4500,0.77)
-x,y,z = test.return_sensor_data()
-test.control_system(False)
+
 
 # Run Simulations
+# No control System
+test.control_system(False)
 yaw = test.simulate(james,rudder_in)
-pd.DataFrame(yaw,yaw_real).to_excel('Data/output.xlsx',header=False,index=False)
+# Write Data to excel
+pd.DataFrame(yaw).to_excel('Data/output.xlsx',header=False,index=False)
 
+# Control System active
 test.control_system(True)
 yaw = test.simulate(james,rudder_in)
 

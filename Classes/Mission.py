@@ -11,7 +11,7 @@ class Mission():
     r = 0
     phi = 0
     psi = 0
-    r_def = 0
+    #r_def = 0
     rudder_in = 0
     velocity = 0
     altitude = 0
@@ -85,16 +85,16 @@ class Mission():
         v = cls.return_velocity(cls)
         yaw = []
         #testing
-        aero = []
-        forces = []
-        rates = []
+        #aero = []
+        #forces = []
+        #rates = []
         #testing
         i = 0
         time = cls.time
         kr = -0.4
         dt = cls.time[1]-cls.time[0]
-        
-        for x in range(len(cls.time)):
+        r_def = 0
+        for x in cls.time:
            
             # Control system check
             if (cls.control == True):
@@ -106,6 +106,7 @@ class Mission():
             else:
                 r_def = cls.rudder_deg[i]*(np.pi/180)
             
+            #r_return.append(r_def)
             aero = Calc.aeroC(vehicle,cls,r_def,v)
             forces = Calc.forceCalc(vehicle,cls.qbar,aero)
             rates = Calc.EOM(forces,vehicle,v,cls)
@@ -124,6 +125,7 @@ class Mission():
         plt.ylabel('yaw rate [deg/s]')
         plt.title('{},Control:{}'.format(Vehicle.get_name(vehicle),cls.control)) # Add simulation name
         plt.xlabel('time [s]')
+        plt.grid(True)
         fig.legend()
         plt.show()
         

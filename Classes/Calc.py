@@ -75,10 +75,11 @@ class Calc():
         rAcc = c[2]*f[1] + c[3]*f[2]
         phiDot = x[1]
         psiDot = x[2]*np.cos(x[3])
+        rDefDot = 0
 
         
 
-        rates = [betaDot,pAcc,rAcc,phiDot,psiDot]
+        rates = [betaDot,pAcc,rAcc,phiDot,psiDot,rDefDot]
        
         return rates
     

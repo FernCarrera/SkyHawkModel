@@ -25,7 +25,7 @@ class Vehicle:
         Iyy = float(self.Data.Iyy)
         Ixz = float(self.Data.Ixz)
         # Moment Coefficient Calculations (only calculating moments for hw3 scenario)
-        c0 = (Ixx*Izz - Ixz**2)**-1
+        c0 = 1.0/(Ixx*Izz - Ixz**2)
         c3 = c0*Izz
         c4 = c0*Ixz
         c10 = c0*Ixx
